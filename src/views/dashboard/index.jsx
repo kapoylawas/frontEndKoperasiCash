@@ -114,11 +114,25 @@ export default function Dashboard() {
       labels: salesDate,
     });
 
+    const profitsChart = initializeChart("chart-profits", {
+      ...commonChartOptions,
+      chart: { type: "bar", height: 40.0, sparkline: { enabled: true } },
+      plotOptions: { bar: { columnWidth: "50%" } },
+      series: [
+        {
+          name: "Profits",
+          data: profitsTotal,
+        },
+      ],
+      labels: profitsDate,
+    });
+
     // Cleanup charts on component unmount
     return () => {
       salesChart.destroy();
+      profitsChart.destroy();
     };
-  }, [salesDate, salesTotal]);
+  }, [salesDate, salesTotal, profitsDate, profitsTotal]);
 
   return (
     <LayoutAdmin>
@@ -155,7 +169,9 @@ export default function Dashboard() {
                   <div className="d-flex align-items-center ">
                     <div className="subheader">Profits Today</div>
                   </div>
-                  <div className="h1 mb-0 me-2 mt-4"></div>
+                  <div className="h1 mb-0 me-2 mt-4">
+                    {moneyFormat(sumProfitsToday)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -191,7 +207,9 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="d-flex align-items-baseline">
-                    <div className="h1 mb-3 me-2"></div>
+                    <div className="h1 mb-3 me-2">
+                      {moneyFormat(sumProfitsWeek)}
+                    </div>
                   </div>
                   <div id="chart-profits" className="chart-sm"></div>
                 </div>
