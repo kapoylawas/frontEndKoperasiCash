@@ -26,8 +26,6 @@ export default function Login() {
   //define state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  console.log("email ->", email);
-  console.log("password ->", password);
 
   //define state errors
   const [errors, setErrors] = useState({});
