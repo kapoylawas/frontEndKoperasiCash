@@ -16,6 +16,9 @@ import moneyFormat from "../../utils/moneyFormat";
 //import chart apex
 import ApexCharts from "apexcharts";
 
+//import generateRandomColors
+import generateRandomColors from "../../utils/generateRandomColors";
+
 export default function Dashboard() {
   //state sales
   const [countSalestoday, setCountSalestoday] = useState(0);
@@ -30,6 +33,13 @@ export default function Dashboard() {
   const [profitsDate, setProfitsDate] = useState([]);
   const [profitsTotal, setProfitsTotal] = useState([]);
 
+  // state profits
+  const [productsBestSelling, setProductsBestSelling] = useState([]);
+
+  // state limits stocks
+  const [productsLimitStock, setProductsLimitStock] = useState([]);
+  console.log("limit", productsLimitStock);
+
   //function fetch data dashboard
   const fetchData = async () => {
     //get token from cookies
@@ -43,6 +53,8 @@ export default function Dashboard() {
         //fetch data from API with Axios
         const response = await Api.get("/api/dashboard");
 
+        console.log("data", response);
+
         //assign response data to state "countSalestoday", "sumSalestoday", "sumSalesWeek", "salesDate", "salesTotal"
         setCountSalestoday(response.data.data.count_sales_today);
         setSumSalestoday(response.data.data.sum_sales_today);
@@ -55,6 +67,12 @@ export default function Dashboard() {
         setSumProfitsWeek(response.data.data.sum_profits_week);
         setProfitsDate(response.data.data.profits.profits_date);
         setProfitsTotal(response.data.data.profits.profits_total);
+
+        //assign response data to state "productsBestSelling"
+        setProductsBestSelling(response.data.data.best_selling_products);
+
+        //assign response data to state "productsLimitStock"
+        setProductsLimitStock(response.data.data.products_limit_stock);
       } catch (error) {
         console.error("There was an error fetching the data!", error);
       }
@@ -127,12 +145,48 @@ export default function Dashboard() {
       labels: profitsDate,
     });
 
+    // tranform data
+    const series = productsBestSelling.map((product) => product.total);
+    const labels = productsBestSelling.map((product) => product.title);
+
+    const bestProductsChart = initializeChart("chart-best-products", {
+      chart: {
+        type: "pie",
+        height: 350, // Adjust height as needed
+      },
+      series: series,
+      labels: labels,
+      responsive: [
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 200,
+            },
+            legend: {
+              position: "bottom",
+            },
+          },
+        },
+      ],
+      colors: generateRandomColors(productsBestSelling.length), // Customize colors as needed
+      legend: {
+        position: "bottom",
+      },
+      tooltip: {
+        y: {
+          formatter: (val) => `${val}`,
+        },
+      },
+    });
+
     // Cleanup charts on component unmount
     return () => {
       salesChart.destroy();
       profitsChart.destroy();
+      bestProductsChart.destroy();
     };
-  }, [salesDate, salesTotal, profitsDate, profitsTotal]);
+  }, [salesDate, salesTotal, profitsDate, profitsTotal, productsBestSelling]);
 
   return (
     <LayoutAdmin>
@@ -212,6 +266,59 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div id="chart-profits" className="chart-sm"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="row mt-5">
+            <div className="col-md-8">
+              <div className="card rounded">
+                <div className="card-header p-3">
+                  <h3 className="mb-0">PRODUCTS BEST SELLING</h3>
+                </div>
+                <div className="card-body">
+                  <div id="chart-best-products"></div>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="card rounded">
+                <div className="card-header p-3">
+                  <h3 className="mb-0">PRODUCTS LIMIT STOCK</h3>
+                </div>
+                <div className="card-body scrollable-card-body">
+                  <div className="row">
+                    {productsLimitStock && productsLimitStock.length > 0 ? (
+                      productsLimitStock.map((product) => (
+                        <div className="col-12 mb-2" key={product.id}>
+                          <div className="card rounded">
+                            <div className="card-body d-flex align-items-center">
+                              <img
+                                src={`${import.meta.env.VITE_APP_BASEURL}/${
+                                  product.image
+                                }`}
+                                alt={product.title}
+                                width={50}
+                                height={50}
+                                className="me-3"
+                              />
+                              <div className="flex-fill">
+                                <h4 className="mb-0">{product.title}</h4>
+                                <hr className="mb-1 mt-1" />
+                                <p className="text-danger mb-0">
+                                  Stock: {product.stock}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="col-12">
+                        <p className="text-center">No products available</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
