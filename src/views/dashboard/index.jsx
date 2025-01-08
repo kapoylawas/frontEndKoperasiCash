@@ -38,7 +38,6 @@ export default function Dashboard() {
 
   // state limits stocks
   const [productsLimitStock, setProductsLimitStock] = useState([]);
-  console.log("limit", productsLimitStock);
 
   //function fetch data dashboard
   const fetchData = async () => {
@@ -52,8 +51,6 @@ export default function Dashboard() {
       try {
         //fetch data from API with Axios
         const response = await Api.get("/api/dashboard");
-
-        console.log("data", response);
 
         //assign response data to state "countSalestoday", "sumSalestoday", "sumSalesWeek", "salesDate", "salesTotal"
         setCountSalestoday(response.data.data.count_sales_today);
