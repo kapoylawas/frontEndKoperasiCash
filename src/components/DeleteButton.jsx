@@ -45,8 +45,8 @@ export default function DeleteButton({ id, endpoint, fetchData }) {
       await Api.delete(`${endpoint}/${id}`).then((response) => {
         // Show success notification
         toast.success(`${response.data.meta.message}`, {
-          duration: 4000,
-          position: "top-right",
+          duration: 5000,
+          position: "top-center",
           style: {
             borderRadius: "10px",
             background: "#333",
