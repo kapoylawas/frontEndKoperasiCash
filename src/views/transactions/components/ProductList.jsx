@@ -1,7 +1,64 @@
+import { useState } from "react";
 //import moneyFormat
 import moneyFormat from "../../../utils/moneyFormat";
+//import service api
+import Api from "../../../services/api";
+//import js cookie
+import Cookies from "js-cookie";
+//import toats
+import toast from "react-hot-toast";
 
-export default function ProductList({ products }) {
+export default function ProductList({ products, fetchCarts }) {
+  //token
+  const token = Cookies.get("token");
+
+  const [loadingId, setLoadingId] = useState(null);
+
+  //function addToCart
+  // Function addToCart
+  const addToCart = (product) => {
+    if (token) {
+      // Set authorization header with token
+      Api.defaults.headers.common["Authorization"] = token;
+
+      // Set loading state
+      setLoadingId(product.id);
+
+      // Show loading toast
+      toast
+        .promise(
+          Api.post("/api/carts", {
+            product_id: product.id,
+            qty: 1,
+            price: product.sell_price,
+          }),
+          {
+            loading: "Adding to cart...",
+            success: (response) => {
+              // Include the message from the response
+              const message = response.data.meta.message;
+              return <b>{message}</b>;
+            },
+            error: (error) => {
+              // Include the error message from the response
+              const errorMessage =
+                error.response.data.meta.message ||
+                "Could not add product to cart.";
+              return <b>{errorMessage}</b>;
+            },
+          }
+        )
+        .then(() => {
+          // Call fetchCarts on success
+          fetchCarts();
+        })
+        .finally(() => {
+          // Reset loading state
+          setLoadingId(null);
+        });
+    }
+  };
+
   return (
     <div className="row mt-3">
       {products.length > 0 ? (
@@ -18,6 +75,13 @@ export default function ProductList({ products }) {
                   className="me-2 rounded"
                 />
                 <h4 className="mb-0 mt-2">{product.title}</h4>
+                <button
+                  className="btn btn-primary mt-3 w-100 rounded"
+                  onClick={() => addToCart(product)}
+                  disabled={loadingId === product.id} // Disable if loading
+                >
+                  {loadingId === product.id ? "Loading..." : "Add to Cart"}
+                </button>
               </div>
             </div>
           </div>

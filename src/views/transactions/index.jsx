@@ -16,6 +16,9 @@ import ProductList from "./components/ProductList";
 //import component pagination
 import PaginationComponent from "../../components/Pagination";
 import CategoryList from "./components/CategoryList";
+import OrderItemList from "./components/OrderItemList";
+import moneyFormat from "../../utils/moneyFormat";
+import Payment from "./components/Payment";
 
 export default function TransactionsIndex() {
   //state products
@@ -37,6 +40,10 @@ export default function TransactionsIndex() {
   const [categories, setCategories] = useState([]);
   //state currentCategoryId
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
+
+  //state carts
+  const [carts, setCarts] = useState([]);
+  const [totalCarts, setTotalCarts] = useState(0);
 
   //token
   const token = Cookies.get("token");
@@ -137,6 +144,21 @@ export default function TransactionsIndex() {
     }
   };
 
+  const fetchCarts = async () => {
+    if (token) {
+      //set authorization header with token
+      Api.defaults.headers.common["Authorization"] = token;
+
+      await Api.get("/api/carts").then((response) => {
+        //set data response to state "carts"
+        setCarts(response.data.data);
+
+        //set totalCarts
+        setTotalCarts(response.data.totalPrice);
+      });
+    }
+  };
+
   //hook
   useEffect(() => {
     //call function "fetchProducts"
@@ -149,6 +171,9 @@ export default function TransactionsIndex() {
 
     //call function "fetchCategories"
     fetchCategories();
+
+    //call function "fetchCarts"
+    fetchCarts();
   }, []);
 
   return (
@@ -198,7 +223,7 @@ export default function TransactionsIndex() {
               />
 
               {/* Product List */}
-              <ProductList products={products} />
+              <ProductList products={products} fetchCarts={fetchCarts} />
 
               {/* Pagination */}
               <div className="row mt-3">
@@ -206,7 +231,13 @@ export default function TransactionsIndex() {
                   currentPage={pagination.currentPage}
                   perPage={pagination.perPage}
                   total={pagination.total}
-                  onChange={(pageNumber) => fetchProducts(pageNumber)}
+                  onChange={(pageNumber) => {
+                    if (currentCategoryId) {
+                      fetchProductByCategoryID(currentCategoryId, pageNumber);
+                    } else {
+                      fetchProducts(pageNumber);
+                    }
+                  }}
                   position="center"
                 />
               </div>
@@ -218,13 +249,15 @@ export default function TransactionsIndex() {
                 </div>
                 <div className="card-body scrollable-card-body p-0">
                   {/* Order Items */}
+                  <OrderItemList carts={carts} fetchCarts={fetchCarts} />
                 </div>
                 <div className="card-body">
                   <div className="mt-3">
-                    <h3 className="float-end"></h3>
-                    <h3 className="mb-0">Total</h3>
+                    <h3 className="float-end">{moneyFormat(totalCarts)}</h3>
+                    <h3 className="mb-0">Total ({carts.length} Items)</h3>
                   </div>
                   <hr />
+                  <Payment totalCarts={totalCarts} fetchCarts={fetchCarts} />
                 </div>
               </div>
             </div>
