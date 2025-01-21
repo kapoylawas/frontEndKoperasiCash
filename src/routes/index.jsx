@@ -14,6 +14,7 @@ import UsersIndex from "../views/users/index.jsx";
 import TransactionsIndex from "../views/transactions/index.jsx";
 import Print from "../views/transactions/print/print.jsx";
 import Sales from "../views/sales/index.jsx";
+import Profits from "../views/profits/index.jsx";
 
 export default function AppRoutes() {
   //destruct state "token" from store
@@ -72,6 +73,12 @@ export default function AppRoutes() {
       <Route
         path="/sales"
         element={token ? <Sales /> : <Navigate to="/" replace />}
+      />
+
+      {/* route "/profits" */}
+      <Route
+        path="/profits"
+        element={token ? <Profits /> : <Navigate to="/" replace />}
       />
     </Routes>
   );

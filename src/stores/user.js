@@ -28,11 +28,34 @@ export const useStore = create((set) => ({
     },
 
     //action logout
-    logout: () => {
-        // Clear cookies
-        Cookies.remove("user");
-        Cookies.remove("token");
-        // Clear state
-        set({ user: {}, token: "" });
+    //logout: () => {
+    // Clear cookies
+    //Cookies.remove("user");
+    //Cookies.remove("token");
+    // Clear state
+    //set({ user: {}, token: "" });
+    //},
+
+    // Action logout
+    logout: async() => {
+        const token = Cookies.get("token");
+
+        try {
+            // Send request to logout API
+            await Api.post("/api/logout", {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            // Clear cookies
+            Cookies.remove("user");
+            Cookies.remove("token");
+            // Clear state
+            set({ user: {}, token: "" });
+        } catch (error) {
+            console.error("Logout failed:", error);
+            // Handle error if necessary
+        }
     },
 }));
