@@ -12,6 +12,7 @@ import Cookies from "js-cookie";
 
 //import moneyFormat
 import moneyFormat from "../../utils/moneyFormat";
+import ExportButton from "../../components/ExportButton";
 
 export default function Sales() {
   //state date
@@ -130,6 +131,13 @@ export default function Sales() {
                   </form>
                   {sales.length > 0 ? (
                     <>
+                      <div className="export text-end mb-3 mt-5">
+                        <ExportButton
+                          startDate={startDate}
+                          endDate={endDate}
+                          type="sales"
+                        />
+                      </div>
                       <table className="table table-bordered">
                         <thead>
                           <tr style={{ backgroundClip: "#e6e6e7" }}>
