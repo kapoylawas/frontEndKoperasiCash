@@ -1,34 +1,25 @@
-//import axios
 import axios from 'axios';
-
-//import js cookie
 import Cookies from 'js-cookie';
 
+const baseURL =
+    import.meta.env.MODE === 'development' ?
+    import.meta.env.VITE_APP_BASEURL :
+    import.meta.env.VITE_APP_BASEURL_PRODUCTION;
+
 const Api = axios.create({
-    //set default endpoint API
-    baseURL: import.meta.env.VITE_APP_BASEURL
-})
+    baseURL: baseURL
+});
 
-//handle unathenticated
+// Handle unauthenticated
 Api.interceptors.response.use(function(response) {
-
-    //return response
     return response;
-}, ((error) => {
-
-    //check if response unauthenticated
+}, (error) => {
     if (401 === error.response.status) {
-
-        //remove token
         Cookies.remove('token');
-
-        //redirect "/admin/login"
         window.location = '/';
     } else {
-
-        //reject promise error
         return Promise.reject(error);
     }
-}));
+});
 
-export default Api
+export default Api;
