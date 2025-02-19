@@ -171,9 +171,8 @@ export default function ProductsIndex() {
                                   <span
                                     className="avatar me-2"
                                     style={{
-                                      backgroundImage: `url(${
-                                        import.meta.env.VITE_APP_BASEURL
-                                      }/${product.image})`,
+                                      backgroundImage: `url(${import.meta.env.VITE_APP_BASEURL
+                                        }/${product.image})`,
                                     }}
                                   ></span>
                                   <div className="flex-fill">

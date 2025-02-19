@@ -122,9 +122,8 @@ export default function CategoriesIndex() {
                                   <span
                                     className="avatar me-2"
                                     style={{
-                                      backgroundImage: `url(${
-                                        import.meta.env.VITE_APP_BASEURL
-                                      }/${category.image})`,
+                                      backgroundImage: `url(${import.meta.env.VITE_APP_BASEURL
+                                        }/${category.image})`,
                                     }}
                                   ></span>
                                   <div className="flex-fill">
