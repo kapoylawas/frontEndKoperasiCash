@@ -28,6 +28,8 @@ export default function Payment({ totalCarts, fetchCarts }) {
   const [customers, setCustomers] = useState([])
   const [selectedCustomer, setSelectedCustomer] = useState('')
 
+  const [loading, setLoading] = useState(false);
+
   //function setDiscount
   function calculateDiscount(e) {
 
@@ -86,38 +88,36 @@ export default function Payment({ totalCarts, fetchCarts }) {
     fetchCustomers()
   }, [])
 
-
-  //function storeTransaction
-  //function storeTransaction
   const storeTransaction = async () => {
-    //get token from cookies inside the function to ensure it's up-to-date
+    setLoading(true); // Set loading to true when starting the transaction
+
     const token = Cookies.get("token");
 
     if (token) {
-      //set authorization header with token
       Api.defaults.headers.common["Authorization"] = token;
 
-      await Api.post("/api/transactions", {
+      const apiCall = Api.post("/api/transactions", {
         customer_id: selectedCustomer.value || null,
         discount: parseInt(discount) || 0,
         cash: parseInt(cash),
         change: parseInt(change),
         grand_total: parseInt(grandTotal),
-      }).then((response) => {
-        //show toast
-        toast.success(response.data.meta.message, {
-          duration: 4000,
-          position: "top-right",
-          style: {
-            borderRadius: "10px",
-            background: "#333",
-            color: "#fff",
-          },
-        });
+      });
 
-        //fetchCarts
+      toast.promise(
+        apiCall,
+        {
+          loading: 'Sedang memproses...',
+          success: (response) => response.data.meta.message,
+          error: <b>Could not save transaction.</b>,
+        }
+      );
+
+      apiCall.then((response) => {
+        // Fetch carts
         fetchCarts();
 
+        // Open receipt window
         const receiptWindow = window.open(
           `/transactions/print?invoice=${response.data.data.invoice}`,
           "_blank",
@@ -139,9 +139,17 @@ export default function Payment({ totalCarts, fetchCarts }) {
         setDiscount("");
         setSelectedCustomer("");
         setGrandTotal(totalCarts);
+      }).catch((error) => {
+        // Handle any errors from the API call
+        console.error("Error storing transaction:", error);
+      }).finally(() => {
+        setLoading(false); // Set loading to false after the transaction is complete
       });
+    } else {
+      setLoading(false); // Ensure loading is set to false if no token is found
     }
   };
+
   return (
     <>
       <button
@@ -200,7 +208,9 @@ export default function Payment({ totalCarts, fetchCarts }) {
             </div>
             <div className="modal-footer">
               <button type="button" className="btn me-auto rounded" data-bs-dismiss="modal">Close</button>
-              <button onClick={storeTransaction} disabled={cash < grandTotal || grandTotal === 0} className="btn btn-primary rounded" data-bs-dismiss="modal">Pay Order + Print</button>
+              <button onClick={storeTransaction} disabled={cash < grandTotal || grandTotal === 0} className="btn btn-primary rounded" data-bs-dismiss="modal">
+                {loading ? 'Proses menyimpan...' : 'Pay Order + Print'}
+              </button>
             </div>
           </div>
         </div>
