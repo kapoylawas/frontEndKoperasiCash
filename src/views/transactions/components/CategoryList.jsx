@@ -16,7 +16,7 @@ export default function CategoryList({ categories, fetchProducts, fetchProductBy
                 src="/images/categories.png"
                 alt=""
                 width={50}
-                height={50}
+                height={60}
                 className="me-2 p-2"
               />
               <h4 className="mb-0 mt-2">All</h4>
@@ -40,10 +40,9 @@ export default function CategoryList({ categories, fetchProducts, fetchProductBy
                           src={`${import.meta.env.VITE_APP_BASEURL}/${category.image}`}
                           alt={category.name}
                           width={100}
-                          height={50}
+                          height={60}
                           className="me-2"
                         />
-                        <h4 className="mb-0 mt-2">{category.name}</h4>
                       </div>
                     </div>
                   </a>

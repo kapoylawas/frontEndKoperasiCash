@@ -27,6 +27,8 @@ export default function CategoryCreate({ fetchData }) {
   //token
   const token = Cookies.get("token");
 
+  const [loading, setLoading] = useState(false);
+
   //function "handleFileChange"
   const handleFileChange = (e) => {
 
@@ -74,40 +76,43 @@ export default function CategoryCreate({ fetchData }) {
 
     //set authorization header with token
     Api.defaults.headers.common['Authorization'] = token;
-    await Api.post('/api/categories', formData).then((response) => {
 
-      //show toast
-      toast.success(`${response.data.meta.message}`, {
-        duration: 4000,
-        position: "top-right",
-        style: {
-          borderRadius: '10px',
-          background: '#333',
-          color: '#fff',
+    // Start loading
+    setLoading(true);
+
+
+    toast
+      .promise(Api.post("/api/categories", formData), {
+        loading: "Saving...",
+        success: (response) => {
+          // Hide the modal
+          const modalElement = modalRef.current;
+          const modalInstance = bootstrap.Modal.getInstance(modalElement);
+          modalInstance.hide();
+
+          // Call function "fetchData"
+          fetchData();
+
+          // Reset form
+          fileInputRef.current.value = "";
+
+          // Set state
+          setImage('');
+          setName('');
+          setDescription('');
+
+          return `${response.data.meta.message}`; // Return success message
         },
-      });
-
-      // Hide the modal
-      const modalElement = modalRef.current;
-      const modalInstance = bootstrap.Modal.getInstance(modalElement);
-      modalInstance.hide();
-
-      //call function "fetchData"
-      fetchData();
-
-      // Reset form
-      fileInputRef.current.value = '';
-      setImage('');
-      setName('');
-      setDescription('');
-
-    })
-      .catch((error) => {
-
-        //assign error to function "handleErrors"
-        handleErrors(error.response.data, setErrors);
+        error: (error) => {
+          // Assign error to function "handleErrors"
+          handleErrors(error.response.data, setErrors);
+          return "Tidak dapat menyimpan category."; // Return error message
+        },
       })
-
+      .finally(() => {
+        // Stop loading
+        setLoading(false);
+      });
   }
 
   return (
@@ -171,9 +176,13 @@ export default function CategoryCreate({ fetchData }) {
                 <a href="#" className="btn me-auto rounded" data-bs-dismiss="modal">
                   Cancel
                 </a>
-                <button type='submit' className="btn btn-primary ms-auto rounded">
+                <button
+                  type='submit'
+                  className="btn btn-primary ms-auto rounded"
+                  disabled={loading} // Add this line to disable the button when loading is true
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" className="icon" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
-                  Save
+                  {loading ? 'Proses menyimpan...' : 'Save'}
                 </button>
               </div>
             </div>

@@ -131,7 +131,7 @@ export default function ProductCreate({ fetchData }) {
         error: (error) => {
           // Assign error to function "handleErrors"
           handleErrors(error.response.data, setErrors);
-          return "Could not save the product."; // Return error message
+          return "Tidak dapat menyimpan product."; // Return error message
         },
       })
       .finally(() => {
@@ -362,7 +362,7 @@ export default function ProductCreate({ fetchData }) {
                     <path d="M12 5l0 14" />
                     <path d="M5 12l14 0" />
                   </svg>
-                  Save
+                  {loading ? 'Proses menyimpan...' : 'Save'}
                 </button>
               </div>
             </div>
