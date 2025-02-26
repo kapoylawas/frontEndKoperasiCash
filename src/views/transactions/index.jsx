@@ -218,6 +218,7 @@ export default function TransactionsIndex() {
                 fetchProducts={fetchProducts}
                 fetchProductByCategoryID={fetchProductByCategoryID}
                 setCurrentCategoryId={setCurrentCategoryId}
+                currentCategoryId={currentCategoryId} // Pass the currentCategoryId here
               />
 
               {/* Product List */}
